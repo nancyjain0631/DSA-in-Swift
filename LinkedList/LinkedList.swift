@@ -201,6 +201,209 @@ example(of: "remove at") {
     print(list)
 }
 
+//###################################CHALLENGE 1: print in reverse
+//              TC: O(N)
+//we can use stack to store elements and then pop out
+//recursion also uses stack, so we can use recursion instead
+
+func printReverseLL<T>(_ list: LinkedList<T>) {
+//    base case: condition for terminating recusrion, if node is nil, it's end of LL
+    printReverse(list.head)
+}
+
+func printReverse<T>(_ node: Node<T>?) {
+//    base case: condition for terminating recusrion, if node is nil, it's end of LL
+    guard let node = node else { return }
+    printReverse(node.next)
+    print(node.data)
+}
+
+example(of: "print in reverse") {
+    var list = LinkedList<Int>()
+    list.push(1)
+    list.push(2)
+    list.push(3)
+    list.push(4)
+    list.push(5)
+    printReverseLL(list)
+}
+//######################################################################
+
+//###################################CHALLENGE 2: find the middle
+//              TC: O(N)
+
+func getMiddle<T>(_ list: LinkedList<T>) -> Node<T>? {
+    var slow = list.head
+    var fast = list.head
+    while let nextFast = fast?.next {
+        fast = nextFast.next
+        slow = slow?.next
+    }
+    return slow
+}
+
+example(of: "find the middle") {
+    var list = LinkedList<Int>()
+    list.append(1)
+    list.append(4)
+    list.append(51)
+    list.append(15)
+    list.append(11)
+//    list.append(18)
+    if let middle = getMiddle(list) {
+        print(middle)
+    }
+    print(list)
+    
+}
+//######################################################################
+
+//###################################CHALLENGE 3: reverse the LL
+//              TC: O(N)
+
+extension LinkedList {
+    mutating func reverse(){
+        tail = head
+        var prev = head
+        var current = head?.next
+        prev?.next = nil
+        while(current != nil){
+            let next = current?.next
+            current?.next = prev
+            prev = current
+            current = next
+        }
+        head = prev
+    }
+}
+
+example(of: "reverse LL") {
+    var list = LinkedList<Int>()
+    list.append(1)
+    list.append(4)
+    list.append(51)
+    list.append(15)
+    list.append(11)
+    print(list)
+    list.reverse()
+    print(list)
+}
+//######################################################################
+
+//###################################CHALLENGE 4: Merge two lists
+//              TC: O(M+N)
+// <T: Comparable> is used because we will use binary operator ( <,>) to compare
+func mergeSorted<T: Comparable>(_ left: LinkedList<T>, _ right: LinkedList<T>) -> LinkedList<T> {
+//    if left LL is empty, return right similarly for right LL
+    guard !left.isEmpty else {
+        return right
+    }
+    guard !right.isEmpty else {
+        return left
+    }
+    var newHead: Node<T>?
+    var tail: Node<T>?
+    
+    var currentLeft = left.head
+    var currentRight = right.head
+    
+//    first we will create a single node to define the head of the merged LL, assign head and tail to that node to make append easier (O(1))
+    if let leftNode = currentLeft, let rightNode = currentRight {
+        if leftNode.data < rightNode.data {
+            newHead = leftNode
+            currentLeft = leftNode.next
+        } else {
+            newHead = rightNode
+            currentRight = rightNode.next
+        }
+        tail = newHead
+    }
+    
+//    merging will start now
+    while let leftNode = currentLeft, let rightNode = currentRight {
+        if leftNode.data < rightNode.data {
+            tail?.next = leftNode
+            currentLeft = leftNode.next
+        } else {
+            tail?.next = rightNode
+            currentRight = rightNode.next
+        }
+        tail = tail?.next
+    }
+    
+//    if some nodes are remaining from any of the list
+    
+    if let leftNode = currentLeft {
+        tail?.next = leftNode
+    }
+    if let rightNode = currentRight {
+        tail?.next = rightNode
+    }
+    
+//    instead of using append or insert methods to insert elemenets, we'll simply set refernvce of the head and tail of the list directly
+    var list = LinkedList<T>()
+    list.head = newHead
+    list.tail = {
+        while let next = tail?.next {
+            tail = next
+        }
+        return tail
+    }()
+    
+    return list
+}
+
+example(of: "merge two lists") {
+    var list = LinkedList<Int>()
+    list.push(5)
+    list.push(3)
+    list.push(1)
+    var anotherList = LinkedList<Int>()
+    anotherList.push(6)
+    anotherList.push(4)
+    anotherList.push(2)
+    let mergedList = mergeSorted(list, anotherList)
+    print(mergedList)
+}
+
+//######################################################################
+
+//###################################CHALLENGE 5: Trimming List
+//              TC: O(N)
+
+extension LinkedList where T: Equatable {
+    mutating func removeAll(_ value: T) {
+        while let head = self.head, head.data == value {
+            self.head = head.next
+        }
+        var prev = head
+        var current = head?.next
+        while let currentNode = current {
+            if current?.next == nil {
+                tail
+            }
+            guard currentNode.data != value else {
+                prev?.next = currentNode.next
+                current = prev?.next
+                continue
+            }
+            prev = current
+            current = current?.next
+        }
+        tail = prev
+    }
+}
+example(of: "deleting duplicate nodes") {
+    var list = LinkedList<Int>()
+    list.push(3)
+    list.push(2)
+    list.push(3)
+    list.push(3)
+    list.push(1)
+    list.removeAll(3)
+    print(list)
+}
+
 
 
 
